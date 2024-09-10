@@ -11,7 +11,12 @@ from .home_interface import HomeInterface
 from .setting_interface import SettingInterface
 from .config_interface import ConfigInterface
 from .fight_edit_interface import FightEditInterface
+from .code_interface import CodeInterface
 from .api.check_update import check_update
+from pathlib import Path
+from PySide6.QtGui import QIcon
+
+app_icon = Path(__file__).parent.parent / "resources/img/gui/app.jpg"
 
 
 class MainWindow(MSFluentWindow):
@@ -21,12 +26,13 @@ class MainWindow(MSFluentWindow):
         self.init_ui()
         # 初始化窗口导航
         self.init_navigation()
-        # 检查更新
-        check_update()
+        # # 检查更新
+        # check_update()
 
     def init_ui(self):
-        self.setWindowTitle("主窗口")
-        self.resize(1080, 720)
+        self.setWindowIcon(QIcon(str(app_icon)))
+        self.setWindowTitle("Fairy Auto")
+        self.resize(960, 640)
 
     def init_navigation(self):
         # 添加主页导航页
@@ -35,7 +41,9 @@ class MainWindow(MSFluentWindow):
         # 添加战斗编辑页面
         self.addSubInterface(FightEditInterface(), FluentIcon.EDIT, self.tr("战斗设计"))
 
-        # 添加配置导航页
+        self.addSubInterface(CodeInterface(), FluentIcon.CODE, self.tr("兑换码"))
+
+        # 添加配置页面
         self.addSubInterface(
             ConfigInterface(),
             FluentIcon.SAVE,
@@ -43,7 +51,7 @@ class MainWindow(MSFluentWindow):
             position=NavigationItemPosition.BOTTOM,
         )
 
-        # 添加设置导航页
+        # 添加设置页面
         self.addSubInterface(
             SettingInterface(),
             FluentIcon.SETTING,

@@ -14,9 +14,10 @@ import numpy as np
 from PIL import Image
 from pydantic import BaseModel, Field, ConfigDict
 
-from schema import Position, OcrResult, info
+from schema import Position, OcrResult
+from schema.cfg.zero_info import state_zero
 from .init import logger, RootPath
-from .ocr import Ocr
+from .ocr import Ocr, paddle_ocr
 from .utils import find_template, screenshot
 
 
@@ -323,8 +324,10 @@ class _Task(BaseModel):
         for page in self._pages:  # 遍历页面
             match_page = page(img, ocr_results)  # 页面匹配
             if match_page:
-                info.currentPageName = page.name  # 设置当前页面名称
-                logger.debug(f"进入副本次数：{info.fightCount} 当前页面：{page.name}")
+                state_zero.currentPageName = page.name  # 设置当前页面名称
+                logger.debug(
+                    f"进入副本次数：{state_zero.fightCount} 当前页面：{page.name}"
+                )
                 sig = inspect.signature(page.action)  # 获取页面操作函数参数
                 params = {}
                 for name, param in sig.parameters.items():
@@ -383,6 +386,15 @@ class _Task(BaseModel):
         :return:
         """
         self._pause = False
+
+    def is_running(self):
+        """
+        是否运行中:给战斗程序调用，检查是否继续运行,暂停则返回False，否则返回self._running
+        """
+
+        if self._pause:
+            return False
+        return self._running
 
     def find_text(
         self,
@@ -497,4 +509,8 @@ class _Task(BaseModel):
         return None
 
 
-task = _Task()
+# 统一使用paddle_ocr
+task_zero = _Task(ocr=paddle_ocr)
+task_money = _Task(ocr=paddle_ocr)
+task_fight = _Task(ocr=paddle_ocr)
+task_code = _Task(ocr=paddle_ocr)
